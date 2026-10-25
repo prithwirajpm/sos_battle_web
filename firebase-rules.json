@@ -1,0 +1,64 @@
+{
+  "rules": {
+    "rooms": {
+      "$roomCode": {
+        // Anyone can read a room (needed to subscribe to game state)
+        ".read": true,
+
+        // Allow writes to a room if:
+        //   1. The room doesn't exist yet (creation), OR
+        //   2. The game is still in progress (waiting or playing), OR
+        //   3. The game is being reset (new status = 'playing' or 'waiting')
+        ".write": "!data.exists() || data.child('status').val() !== 'finished' || newData.child('status').val() === 'playing' || newData.child('status').val() === 'waiting'",
+
+        // Validate individual fields on every write
+        "status": {
+          ".validate": "newData.val() === 'waiting' || newData.val() === 'playing' || newData.val() === 'finished'"
+        },
+
+        "currentTurn": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+
+        "winner": {
+          ".validate": "newData.isString() || newData.val() === null"
+        },
+
+        "draw": {
+          ".validate": "newData.isBoolean()"
+        },
+
+        "board": {
+          "$index": {
+            ".validate": "newData.val() === '' || newData.val() === 'S' || newData.val() === 'O'"
+          }
+        },
+
+        "players": {
+          "$playerId": {
+            ".read": true,
+            // Any client can write player nodes (no auth in this app)
+            ".write": true,
+
+            "nickname": {
+              ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 20"
+            },
+            "score": {
+              ".validate": "newData.isNumber() && newData.val() >= 0"
+            },
+            "connected": {
+              ".validate": "newData.isBoolean()"
+            },
+            "id": {
+              ".validate": "newData.isString()"
+            }
+          }
+        },
+
+        "playerOrder": {
+          ".validate": "newData.hasChildren()"
+        }
+      }
+    }
+  }
+}
