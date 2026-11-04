@@ -59,6 +59,60 @@
           ".validate": "newData.hasChildren()"
         }
       }
+    },
+
+    // ── Snakes & Ladders rooms ────────────────────────────────────────────
+    "snl_rooms": {
+      "$roomCode": {
+        // Anyone can read (needed to subscribe to live game state)
+        ".read": true,
+
+        // Allow writes when:
+        //   1. Room doesn't exist yet (creation), OR
+        //   2. Game is not yet finished (playing / waiting), OR
+        //   3. Game is being reset back to playing/waiting
+        ".write": "!data.exists() || data.child('status').val() !== 'finished' || newData.child('status').val() === 'playing' || newData.child('status').val() === 'waiting'",
+
+        "status": {
+          ".validate": "newData.val() === 'waiting' || newData.val() === 'playing' || newData.val() === 'finished'"
+        },
+
+        "currentTurn": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+
+        "winner": {
+          ".validate": "newData.isString() || newData.val() === null"
+        },
+
+        "lastDice": {
+          ".validate": "newData.val() === null || (newData.isNumber() && newData.val() >= 1 && newData.val() <= 6)"
+        },
+
+        "players": {
+          "$playerId": {
+            ".read": true,
+            ".write": true,
+
+            "nickname": {
+              ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 20"
+            },
+            "position": {
+              ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 100"
+            },
+            "connected": {
+              ".validate": "newData.isBoolean()"
+            },
+            "id": {
+              ".validate": "newData.isString()"
+            }
+          }
+        },
+
+        "playerOrder": {
+          ".validate": "newData.hasChildren()"
+        }
+      }
     }
   }
 }
