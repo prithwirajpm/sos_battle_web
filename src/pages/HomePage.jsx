@@ -7,6 +7,31 @@ import { isFirebaseConfigured } from '../firebase'
 const PLAYER_ID_KEY = 'sos_player_id'
 const PLAYER_NAME_KEY = 'sos_player_name'
 
+// ─── Game selector cards ─────────────────────────────────────────────────────
+
+function GamePicker({ onPickSnl }) {
+  return (
+    <div className="game-picker">
+      <p className="game-picker-label">Choose a Game</p>
+      <div className="game-picker-cards">
+        {/* SOS — currently shown below, just acts as a visual anchor */}
+        <div className="game-picker-card game-picker-card-active" aria-current="true">
+          <span className="game-picker-emoji">🔤</span>
+          <span className="game-picker-name">SOS</span>
+          <span className="game-picker-desc">Word puzzle · 6×6 board</span>
+        </div>
+
+        {/* Snakes & Ladders */}
+        <button className="game-picker-card game-picker-card-snl" onClick={onPickSnl}>
+          <span className="game-picker-emoji">🐍</span>
+          <span className="game-picker-name">Snakes &amp; Ladders</span>
+          <span className="game-picker-desc">Classic dice game · 10×10</span>
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function getOrCreatePlayerId() {
   let id = sessionStorage.getItem(PLAYER_ID_KEY)
   if (!id) {
@@ -19,6 +44,9 @@ function getOrCreatePlayerId() {
 export default function HomePage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
+
+  // Navigate to S&L lobby
+  const handlePickSnl = useCallback(() => navigate('/snl'), [navigate])
 
   const [tab, setTab] = useState('create') // 'create' | 'join'
   const [nickname, setNickname] = useState(() => localStorage.getItem(PLAYER_NAME_KEY) || '')
@@ -84,6 +112,9 @@ export default function HomePage() {
 
   return (
     <main className="page" id="home-page">
+      {/* Game Picker */}
+      <GamePicker onPickSnl={handlePickSnl} />
+
       {/* Hero */}
       <div className="home-hero">
         <div className="home-logo gradient-text">SOS</div>
